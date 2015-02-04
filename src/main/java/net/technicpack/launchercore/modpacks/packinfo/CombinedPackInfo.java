@@ -1,6 +1,6 @@
 /*
  * This file is part of Technic Launcher Core.
- * Copyright (C) 2013 Syndicate, LLC
+ * Copyright ©2015 Syndicate, LLC
  *
  * Technic Launcher Core is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -168,6 +168,14 @@ public class CombinedPackInfo implements PackInfo {
     }
 
     @Override
+    public boolean isServerPack() {
+        if (platformPackInfo != null)
+            return platformPackInfo.isServerPack();
+
+        return false;
+    }
+
+    @Override
     public Modpack getModpack(String build) throws BuildInaccessibleException {
         if (solderPackInfo != null)
             return solderPackInfo.getModpack(build);
@@ -180,5 +188,14 @@ public class CombinedPackInfo implements PackInfo {
     @Override
     public boolean isComplete() {
         return (platformPackInfo != null);
+    }
+
+    @Override
+    public boolean isLocal() {
+        if (platformPackInfo == null || platformPackInfo.isLocal())
+            return true;
+        if (solderPackInfo == null || solderPackInfo.isLocal())
+            return true;
+        return false;
     }
 }

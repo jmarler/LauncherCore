@@ -1,6 +1,6 @@
 /*
  * This file is part of Technic Launcher Core.
- * Copyright (C) 2013 Syndicate, LLC
+ * Copyright ©2015 Syndicate, LLC
  *
  * Technic Launcher Core is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -19,6 +19,7 @@
 
 package net.technicpack.utilslib;
 
+import java.io.File;
 import java.util.Locale;
 
 public enum OperatingSystem {
@@ -41,10 +42,10 @@ public enum OperatingSystem {
         String path = System.getProperty("java.home") + separator + "bin" + separator;
 
         if (getOperatingSystem() == WINDOWS) {
-            return "javaw.exe";
+            return path + "javaw.exe";
         }
 
-        return "java";
+        return path + "java";
     }
 
     public static OperatingSystem getOperatingSystem() {
@@ -66,6 +67,28 @@ public enum OperatingSystem {
         }
 
         return UNKNOWN;
+    }
+
+    public File getUserDirectoryForApp(String appName) {
+        String userHome = System.getProperty("user.home", ".");
+
+        switch (this) {
+            case LINUX:
+                return new File(userHome, "."+appName+"/");
+            case WINDOWS:
+                String applicationData = System.getenv("APPDATA");
+                if (applicationData != null) {
+                    return new File(applicationData, "."+appName+"/");
+                } else {
+                    return new File(userHome, "."+appName+"/");
+                }
+            case OSX:
+                return new File(userHome, "Library/Application Support/" + appName);
+            case UNKNOWN:
+                return new File(userHome, appName + "/");
+            default:
+                return new File(userHome, appName + "/");
+        }
     }
 
     public String[] getAliases() {

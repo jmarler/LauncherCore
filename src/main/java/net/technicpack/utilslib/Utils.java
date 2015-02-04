@@ -1,6 +1,6 @@
 /*
  * This file is part of Technic Launcher.
- * Copyright (C) 2013 Syndicate, LLC
+ * Copyright ©2015 Syndicate, LLC
  *
  * Technic Launcher is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,11 +20,13 @@ package net.technicpack.utilslib;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import net.technicpack.launchercore.exception.DownloadException;
 import net.technicpack.launchercore.mirror.MirrorStore;
 import org.apache.commons.io.IOUtils;
 
 import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.logging.Logger;
 
@@ -59,9 +61,7 @@ public class Utils {
         conn.setDoOutput(false);
         System.setProperty("http.agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.162 Safari/535.19");
         conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.162 Safari/535.19");
-        HttpURLConnection.setFollowRedirects(true);
         conn.setUseCaches(false);
-        conn.setInstanceFollowRedirects(true);
         return conn;
     }
 
@@ -76,11 +76,24 @@ public class Utils {
         InputStream stream = null;
         try {
             final URL url = mirrorStore.getFullUrl(urlLoc);
-            final HttpURLConnection conn = openHttpConnection(url);
-            conn.setConnectTimeout(10000);
+            HttpURLConnection conn = openHttpConnection(url);
 
             int responseCode = conn.getResponseCode();
             int responseFamily = responseCode / 100;
+
+            if (responseFamily == 3) {
+                String newUrl = conn.getHeaderField("Location");
+                URL redirectUrl = null;
+                try {
+                    redirectUrl = new URL(newUrl);
+                } catch (MalformedURLException ex) {
+                    throw new DownloadException("Invalid Redirect URL: " + url, ex);
+                }
+
+                conn = openHttpConnection(redirectUrl);
+                responseCode = conn.getResponseCode();
+                responseFamily = responseCode/100;
+            }
 
             if (responseFamily == 2) {
                 stream = conn.getInputStream();
@@ -128,5 +141,55 @@ public class Utils {
         } catch (IOException e) {
             return false;
         }
+    }
+
+    /**
+     *
+     * Run a command on the local command line and return the program output.
+     * THIS COMMAND IS BLOCKING!  Only run for short command line stuff, or I guess run on a thread.
+     *
+     * @param command List of args to run on the command line
+     * @return The newline-separated program output
+     */
+    public static String getProcessOutput(String... command) {
+        String out = null;
+        try {
+            ProcessBuilder pb = new ProcessBuilder(command);
+            pb.redirectErrorStream(true);
+            Process process = pb.start();
+            final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            final StringBuilder response=new StringBuilder();
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        String line;
+                        while ((line = bufferedReader.readLine()) != null) {
+                            response.append(line + "\n");
+                        }
+                    } catch (IOException ex) {
+                        //Don't let other process' problems concern us
+                    } finally {
+                        IOUtils.closeQuietly(bufferedReader);
+                    }
+                }
+            }).start();
+            process.waitFor();
+
+
+            if (response.toString().length() > 0) {
+                out = response.toString().trim();
+            }
+        }
+        catch (IOException e) {
+            //Some kind of problem running java -version or getting output, just assume the version is bad
+            return null;
+        } catch (InterruptedException ex) {
+            //Something booted us while we were waiting on java -version to complete, just assume
+            //this version is bad
+            return null;
+        }
+        return out;
     }
 }

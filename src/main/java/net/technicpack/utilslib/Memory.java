@@ -1,6 +1,6 @@
 /*
  * This file is part of Technic Launcher Core.
- * Copyright (C) 2013 Syndicate, LLC
+ * Copyright ©2015 Syndicate, LLC
  *
  * Technic Launcher Core is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -65,14 +65,22 @@ public class Memory {
     }
 
     public static long getAvailableMemory() {
+        return getAvailableMemory(is64Bit());
+    }
+
+    public static long getAvailableMemory(boolean is64Bit) {
         long physical = getPhysicalMemory();
-        if (!is64Bit() && physical > MAX_32_BIT_MEMORY)
+        if (!is64Bit && physical > MAX_32_BIT_MEMORY)
             return MAX_32_BIT_MEMORY;
         return physical;
     }
 
-    public static Memory getClosesAvailableMemory(Memory memory) {
-        long available = getAvailableMemory();
+    public static Memory getClosestAvailableMemory(Memory memory) {
+        return getClosestAvailableMemory(memory, is64Bit());
+    }
+
+    public static Memory getClosestAvailableMemory(Memory memory, boolean is64Bit) {
+        long available = getAvailableMemory(is64Bit);
         if (memory.getMemoryMB() <= available)
             return memory;
 

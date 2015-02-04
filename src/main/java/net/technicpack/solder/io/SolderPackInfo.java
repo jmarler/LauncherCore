@@ -1,6 +1,6 @@
 /*
  * This file is part of Technic Launcher Core.
- * Copyright (C) 2013 Syndicate, LLC
+ * Copyright ©2015 Syndicate, LLC
  *
  * Technic Launcher Core is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -45,6 +45,7 @@ public class SolderPackInfo extends RestObject implements PackInfo {
     private String latest;
     private List<String> builds;
     private transient ISolderPackApi solder;
+    private transient boolean isLocal = false;
 
     public SolderPackInfo() {
 
@@ -135,6 +136,9 @@ public class SolderPackInfo extends RestObject implements PackInfo {
     }
 
     @Override
+    public boolean isServerPack() { return false; }
+
+    @Override
     public Modpack getModpack(String build) throws BuildInaccessibleException {
         return solder.getPackBuild(build);
     }
@@ -143,6 +147,16 @@ public class SolderPackInfo extends RestObject implements PackInfo {
     public boolean isComplete() {
         return false;
     }
+
+    @Override
+    public boolean isLocal() {
+        if (builds.size() == 0)
+            return true;
+
+        return isLocal;
+    }
+
+    public void setLocal() { isLocal = true; }
 
     @Override
     public String toString() {

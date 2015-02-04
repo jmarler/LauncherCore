@@ -1,6 +1,6 @@
 /*
  * This file is part of Technic Launcher Core.
- * Copyright (C) 2013 Syndicate, LLC
+ * Copyright ©2015 Syndicate, LLC
  *
  * Technic Launcher Core is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -32,13 +32,11 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 public class HttpPlatformApi implements IPlatformApi {
-    private String rootUrl;
     private String platformUrl;
     private MirrorStore mirrorStore;
 
     public HttpPlatformApi(String rootUrl, MirrorStore mirrorStore) {
-        this.rootUrl = rootUrl;
-        this.platformUrl = rootUrl + "api/";
+        this.platformUrl = rootUrl;
         this.mirrorStore = mirrorStore;
     }
 
@@ -73,15 +71,5 @@ public class HttpPlatformApi implements IPlatformApi {
     public NewsData getNews() throws RestfulAPIException {
         String url = platformUrl + "news";
         return RestObject.getRestObject(NewsData.class, url);
-    }
-
-    @Override
-    public SearchResultsData getSearchResults(String searchTerm) throws RestfulAPIException {
-        try {
-            String url = rootUrl + "search/modpacks/launcher/" + URLEncoder.encode(searchTerm.trim(), "UTF-8");
-            return RestObject.getRestObject(SearchResultsData.class, url);
-        } catch (UnsupportedEncodingException ex) {
-            return new SearchResultsData();
-        }
     }
 }

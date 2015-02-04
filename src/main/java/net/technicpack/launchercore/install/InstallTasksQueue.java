@@ -1,6 +1,6 @@
 /*
  * This file is part of Technic Launcher Core.
- * Copyright (C) 2013 Syndicate, LLC
+ * Copyright ©2015 Syndicate, LLC
  *
  * Technic Launcher Core is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -26,12 +26,12 @@ import net.technicpack.launchercore.util.DownloadListener;
 import java.io.IOException;
 import java.util.LinkedList;
 
-public class InstallTasksQueue<VersionData> implements ITasksQueue {
+public class InstallTasksQueue<Metadata> implements ITasksQueue {
     private DownloadListener listener;
     private LinkedList<IInstallTask> tasks;
     private IInstallTask currentTask;
-    private VersionData completeVersion;
     private MirrorStore mirrorStore;
+    private Metadata metadata;
 
     public InstallTasksQueue(DownloadListener listener, MirrorStore mirrorStore) {
         this.listener = listener;
@@ -41,7 +41,8 @@ public class InstallTasksQueue<VersionData> implements ITasksQueue {
     }
 
     public void refreshProgress() {
-        listener.stateChanged(currentTask.getTaskDescription(), currentTask.getTaskProgress());
+        if (listener != null)
+            listener.stateChanged(currentTask.getTaskDescription(), currentTask.getTaskProgress());
     }
 
     public void runAllTasks() throws IOException, InterruptedException {
@@ -60,14 +61,6 @@ public class InstallTasksQueue<VersionData> implements ITasksQueue {
         tasks.addLast(task);
     }
 
-    public void setCompleteVersion(VersionData version) {
-        this.completeVersion = version;
-    }
-
-    public VersionData getCompleteVersion() {
-        return this.completeVersion;
-    }
-
     public MirrorStore getMirrorStore() {
         return this.mirrorStore;
     }
@@ -75,4 +68,8 @@ public class InstallTasksQueue<VersionData> implements ITasksQueue {
     public DownloadListener getDownloadListener() {
         return this.listener;
     }
+
+    public void setMetadata(Metadata metadata) { this.metadata = metadata; }
+
+    public Metadata getMetadata() { return this.metadata; }
 }

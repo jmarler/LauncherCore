@@ -1,6 +1,6 @@
 /*
  * This file is part of Technic Launcher Core.
- * Copyright (C) 2013 Syndicate, LLC
+ * Copyright ©2015 Syndicate, LLC
  *
  * Technic Launcher Core is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -45,7 +45,10 @@ public class PlatformPackInfo extends RestObject implements PackInfo {
     private Integer runs;
     private Integer downloads;
     private boolean forceDir;
+    private boolean isServer;
     private ArrayList<FeedItem> feed = new ArrayList<FeedItem>();
+
+    private transient boolean isLocal = false;
 
     public PlatformPackInfo() {
 
@@ -143,6 +146,8 @@ public class PlatformPackInfo extends RestObject implements PackInfo {
         return downloads;
     }
 
+    public boolean isServerPack() { return isServer; }
+
     @Override
     public Modpack getModpack(String build) throws BuildInaccessibleException {
         return new Modpack(this);
@@ -156,6 +161,10 @@ public class PlatformPackInfo extends RestObject implements PackInfo {
     public String getUrl() {
         return url;
     }
+
+    public void setLocal() { isLocal = true; }
+    @Override
+    public boolean isLocal() { return isLocal; }
 
     @Override
     public String toString() {

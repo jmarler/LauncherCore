@@ -1,6 +1,6 @@
 /*
  * This file is part of Technic Launcher Core.
- * Copyright (C) 2013 Syndicate, LLC
+ * Copyright ©2015 Syndicate, LLC
  *
  * Technic Launcher Core is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,6 +21,7 @@ package net.technicpack.platform.packsources;
 
 import net.technicpack.launchercore.modpacks.sources.IPackSource;
 import net.technicpack.platform.IPlatformApi;
+import net.technicpack.platform.IPlatformSearchApi;
 import net.technicpack.platform.io.SearchResult;
 import net.technicpack.platform.io.SearchResultsData;
 import net.technicpack.rest.RestfulAPIException;
@@ -29,11 +30,11 @@ import net.technicpack.rest.io.PackInfo;
 import java.util.*;
 
 public class SearchResultPackSource implements IPackSource {
-    private IPlatformApi platformApi;
+    private IPlatformSearchApi platformApi;
     private String searchTerms;
     private Map<String, Integer> resultPriorities = new HashMap<String, Integer>();
 
-    public SearchResultPackSource(IPlatformApi platformApi, String searchTerms) {
+    public SearchResultPackSource(IPlatformSearchApi platformApi, String searchTerms) {
         this.platformApi = platformApi;
         this.searchTerms = searchTerms;
     }

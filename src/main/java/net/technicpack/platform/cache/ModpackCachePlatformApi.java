@@ -1,6 +1,6 @@
 /*
  * This file is part of Technic Launcher Core.
- * Copyright (C) 2013 Syndicate, LLC
+ * Copyright ©2015 Syndicate, LLC
  *
  * Technic Launcher Core is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -89,7 +89,7 @@ public class ModpackCachePlatformApi implements IPlatformApi {
         PlatformPackInfo info = cache.getIfPresent(packSlug);
 
         if (info == null && isDead(packSlug))
-            return getPlatformPackInfoForBulk(packSlug);
+            return getDeadPackInfo(packSlug);
 
         try {
             if (info == null) {
@@ -99,10 +99,22 @@ public class ModpackCachePlatformApi implements IPlatformApi {
             ex.printStackTrace();
 
             deadPacks.put(packSlug, true);
-            return getPlatformPackInfoForBulk(packSlug);
+            return getDeadPackInfo(packSlug);
         }
 
         return info;
+    }
+
+    protected PlatformPackInfo getDeadPackInfo(String packSlug) {
+        try {
+            PlatformPackInfo deadInfo = getPlatformPackInfoForBulk(packSlug);
+
+            if (deadInfo != null)
+                deadInfo.setLocal();
+            return deadInfo;
+        } catch (RestfulAPIException ex) {
+            return null;
+        }
     }
 
     private boolean isDead(String packSlug) {
@@ -182,10 +194,5 @@ public class ModpackCachePlatformApi implements IPlatformApi {
     @Override
     public NewsData getNews() throws RestfulAPIException {
         return innerApi.getNews();
-    }
-
-    @Override
-    public SearchResultsData getSearchResults(String searchTerm) throws RestfulAPIException {
-        return innerApi.getSearchResults(searchTerm);
     }
 }

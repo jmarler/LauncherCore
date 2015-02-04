@@ -1,6 +1,6 @@
 /*
  * This file is part of Technic Launcher Core.
- * Copyright (C) 2013 Syndicate, LLC
+ * Copyright ©2015 Syndicate, LLC
  *
  * Technic Launcher Core is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -90,15 +90,21 @@ public class CachedSolderPackApi implements ISolderPackApi {
 
     @Override
     public SolderPackInfo getPackInfo() throws RestfulAPIException {
-        if (Seconds.secondsBetween(DateTime.now(), lastInfoAccess).isGreaterThan(Seconds.seconds(cacheInSeconds))) {
+        if (Seconds.secondsBetween(lastInfoAccess, DateTime.now()).isLessThan(Seconds.seconds(cacheInSeconds))) {
             if (rootInfoCache != null)
                 return rootInfoCache;
         }
 
-        if (Seconds.secondsBetween(DateTime.now(), lastInfoAccess).isGreaterThan(Seconds.seconds(cacheInSeconds / 10)))
+        if (Seconds.secondsBetween(lastInfoAccess, DateTime.now()).isLessThan(Seconds.seconds(cacheInSeconds / 10)))
             return rootInfoCache;
 
-        return pullAndCache();
+        try {
+            return pullAndCache();
+        } catch (RestfulAPIException ex) {
+            ex.printStackTrace();
+
+            return getPackInfoForBulk();
+        }
     }
 
     private SolderPackInfo pullAndCache() throws RestfulAPIException {
@@ -119,6 +125,9 @@ public class CachedSolderPackApi implements ISolderPackApi {
         try {
             String packCache = FileUtils.readFileToString(cacheFile, Charset.forName("UTF-8"));
             rootInfoCache = Utils.getGson().fromJson(packCache, SolderPackInfo.class);
+
+            if (rootInfoCache != null)
+                rootInfoCache.setLocal();
         } catch (IOException ex) {
         } catch (JsonSyntaxException ex) {
         }

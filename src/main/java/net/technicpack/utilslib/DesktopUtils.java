@@ -1,6 +1,6 @@
 /**
  * This file is part of Technic Launcher Core.
- * Copyright (C) 2013 Syndicate, LLC
+ * Copyright ©2015 Syndicate, LLC
  *
  * Technic Launcher Core is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -30,7 +30,10 @@ import java.util.logging.Level;
 public class DesktopUtils {
     public static void browseUrl(String url) {
         try {
-            Desktop.getDesktop().browse(new URI(url));
+            if (url.startsWith("mailto:"))
+                Desktop.getDesktop().mail(new URI(url));
+            else
+                Desktop.getDesktop().browse(new URI(url));
         } catch (IOException ex) {
             //Thrown by Desktop.browse() - just log & ignore
             Utils.getLogger().log(Level.SEVERE, ex.getMessage(), ex);

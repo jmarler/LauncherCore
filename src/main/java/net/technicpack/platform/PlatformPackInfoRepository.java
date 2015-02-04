@@ -1,6 +1,6 @@
 /*
  * This file is part of Technic Launcher Core.
- * Copyright (C) 2013 Syndicate, LLC
+ * Copyright ©2015 Syndicate, LLC
  *
  * Technic Launcher Core is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -27,6 +27,7 @@ import net.technicpack.rest.RestfulAPIException;
 import net.technicpack.rest.io.PackInfo;
 import net.technicpack.solder.ISolderApi;
 import net.technicpack.solder.ISolderPackApi;
+import net.technicpack.solder.io.SolderPackInfo;
 import net.technicpack.utilslib.Utils;
 
 import java.util.logging.Level;
@@ -69,8 +70,14 @@ public class PlatformPackInfoRepository implements IAuthoritativePackSource {
         if (platformInfo != null && platformInfo.hasSolder()) {
             try {
                 ISolderPackApi solderPack = solder.getSolderPack(platformInfo.getSolder(), platformInfo.getName(), solder.getMirrorUrl(platformInfo.getSolder()));
-                return new CombinedPackInfo(solderPack.getPackInfoForBulk(), platformInfo);
+                SolderPackInfo solderInfo = solderPack.getPackInfoForBulk();
+
+                if (solderInfo == null)
+                    return platformInfo;
+                else
+                    return new CombinedPackInfo(solderInfo, platformInfo);
             } catch (RestfulAPIException ex) {
+                ex.printStackTrace();
                 return platformInfo;
             }
         } else {

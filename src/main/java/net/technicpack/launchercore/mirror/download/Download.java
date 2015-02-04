@@ -1,6 +1,6 @@
 /*
  * This file is part of Technic Launcher Core.
- * Copyright (C) 2013 Syndicate, LLC
+ * Copyright ©2015 Syndicate, LLC
  *
  * Technic Launcher Core is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -71,8 +71,22 @@ public class Download implements Runnable {
             int responseFamily = response / 100;
 
             if (responseFamily == 3) {
-                throw new DownloadException("The server issued a redirect response which Technic failed to follow.");
-            } else if (responseFamily != 2) {
+                String redirUrlText = conn.getHeaderField("Location");
+                if (redirUrlText != null && !redirUrlText.isEmpty()) {
+                    URL redirectUrl = null;
+                    try {
+                        redirectUrl = new URL(redirUrlText);
+                    } catch (MalformedURLException ex) {
+                        throw new DownloadException("Invalid Redirect URL: " + url, ex);
+                    }
+
+                    conn = Utils.openHttpConnection(redirectUrl);
+                    response = conn.getResponseCode();
+                    responseFamily = response / 100;
+                }
+            }
+
+            if (responseFamily != 2) {
                 throw new DownloadException("The server issued a " + response + " response code.");
             }
 

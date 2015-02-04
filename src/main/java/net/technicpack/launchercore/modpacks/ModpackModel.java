@@ -1,6 +1,6 @@
 /*
  * This file is part of Technic Launcher Core.
- * Copyright (C) 2013 Syndicate, LLC
+ * Copyright ©2015 Syndicate, LLC
  *
  * Technic Launcher Core is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,11 +21,14 @@ package net.technicpack.launchercore.modpacks;
 
 import net.technicpack.launchercore.install.LauncherDirectories;
 import net.technicpack.launchercore.install.Version;
+import net.technicpack.launchercore.modpacks.packinfo.CombinedPackInfo;
 import net.technicpack.launchercore.modpacks.sources.IInstalledPackRepository;
 import net.technicpack.launchercore.modpacks.sources.IModpackTagBuilder;
 import net.technicpack.platform.io.FeedItem;
+import net.technicpack.platform.io.PlatformPackInfo;
 import net.technicpack.rest.io.PackInfo;
 import net.technicpack.rest.io.Resource;
+import net.technicpack.solder.io.SolderPackInfo;
 import net.technicpack.utilslib.Utils;
 import org.apache.commons.io.FileUtils;
 
@@ -87,7 +90,21 @@ public class ModpackModel {
     }
 
     public void setPackInfo(PackInfo packInfo) {
-        this.packInfo = packInfo;
+
+        //HACK
+        //I need to rework the way platform & solder data interact to produce a complete pack, but until I do so, this
+        //awesome hack will combine platform & solder data where necessary
+        if (packInfo instanceof SolderPackInfo && this.packInfo instanceof PlatformPackInfo) {
+            this.packInfo = new CombinedPackInfo(packInfo, this.packInfo);
+        } else if (packInfo instanceof PlatformPackInfo && this.packInfo instanceof SolderPackInfo) {
+            this.packInfo = new CombinedPackInfo(this.packInfo, packInfo);
+        } else if (packInfo instanceof SolderPackInfo && this.packInfo instanceof CombinedPackInfo) {
+            this.packInfo = new CombinedPackInfo(packInfo, this.packInfo);
+        } else if (packInfo instanceof PlatformPackInfo && this.packInfo instanceof CombinedPackInfo) {
+            this.packInfo = new CombinedPackInfo(this.packInfo, packInfo);
+        } else {
+            this.packInfo = packInfo;
+        }
     }
 
     public String getName() {
@@ -187,7 +204,9 @@ public class ModpackModel {
     }
 
     public boolean isLocalOnly() {
-        return (packInfo == null);
+        if (packInfo == null)
+            return true;
+        return packInfo.isLocal();
     }
 
     public Version getInstalledVersion() {
@@ -238,6 +257,13 @@ public class ModpackModel {
             return "";
 
         return packInfo.getDescription();
+    }
+
+    public boolean isServerPack() {
+        if (packInfo == null)
+            return false;
+
+        return packInfo.isServerPack();
     }
 
     public Integer getLikes() {

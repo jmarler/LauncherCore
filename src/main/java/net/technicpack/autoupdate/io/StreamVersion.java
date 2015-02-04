@@ -1,6 +1,6 @@
 /*
  * This file is part of Technic Launcher Core.
- * Copyright (C) 2013 Syndicate, LLC
+ * Copyright ©2015 Syndicate, LLC
  *
  * Technic Launcher Core is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,9 +21,13 @@ package net.technicpack.autoupdate.io;
 
 import net.technicpack.rest.RestObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class StreamVersion extends RestObject {
     private int build;
     private StreamUrls url;
+    private List<LauncherResource> resources = new ArrayList<LauncherResource>();
 
     public int getBuild() {
         return build;
@@ -36,4 +40,6 @@ public class StreamVersion extends RestObject {
     public String getJarUrl() {
         return url.getJarUrl();
     }
+
+    public List<LauncherResource> getResources() { return resources; }
 }

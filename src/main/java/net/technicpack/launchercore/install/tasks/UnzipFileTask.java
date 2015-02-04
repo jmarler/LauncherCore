@@ -1,6 +1,6 @@
 /*
  * This file is part of Technic Launcher Core.
- * Copyright (C) 2013 Syndicate, LLC
+ * Copyright ©2015 Syndicate, LLC
  *
  * Technic Launcher Core is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -55,6 +55,10 @@ public class UnzipFileTask extends ListenerTask {
             destination.mkdirs();
         }
 
-        ZipUtils.unzipFile(zipFile, destination, filter, this);
+        try {
+            ZipUtils.unzipFile(zipFile, destination, filter, this);
+        } catch (ZipException ex) {
+            throw new ZipException("Error extracting file "+zipFile.getName()+".");
+        }
     }
 }

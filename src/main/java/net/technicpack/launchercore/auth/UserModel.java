@@ -1,6 +1,6 @@
 /*
  * This file is part of Technic Launcher Core.
- * Copyright (C) 2013 Syndicate, LLC
+ * Copyright ©2015 Syndicate, LLC
  *
  * Technic Launcher Core is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -91,6 +91,7 @@ public class UserModel<UserType extends IUserType> {
                 return null;
             }
         } catch (AuthenticationNetworkFailureException ex) {
+            ex.printStackTrace();
             return new AuthError("Auth Servers Inaccessible", "An error occurred while attempting to reach " + ex.getTargetSite());
         }
     }
